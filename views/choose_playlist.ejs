@@ -1,0 +1,19 @@
+<%- include('partials/base', { title: 'Choose Playlist' , body: ` <h2>Select a Playlist to Shuffle</h2>
+
+  <form method="POST" action="/shuffle">
+    <div class="mb-3">
+      <label class="form-label">Your Playlists:</label>
+      <select class="form-select" name="playlist_id">
+        ${playlists.map(pl => `
+        <option value="${pl.id}">
+          ${pl.name} — ${pl.owner.display_name}
+        </option>
+        `).join('')}
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary">
+      Shuffle Selected Playlist
+    </button>
+  </form>
+  `
+  }) %>

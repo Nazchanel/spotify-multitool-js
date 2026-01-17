@@ -1,0 +1,11 @@
+<%- include('partials/base', { title: 'Playlist Tracks' , body: ` <h2>Playlist Tracks</h2>
+
+  <ul class="list-group">
+    ${tracks.map(track => `
+    <li class="list-group-item">
+      <strong>${track.name}</strong> by ${track.artists[0].name}
+    </li>
+    `).join('')}
+  </ul>
+  `
+  }) %>

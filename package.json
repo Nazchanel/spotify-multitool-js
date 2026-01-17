@@ -1,0 +1,20 @@
+{
+  "name": "SpotifyMultitool",
+  "version": "1.0.0",
+  "description": " Multi function webapp/app that will be the swiss army knife of spotify ",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.6.1",
+    "ejs": "^4.0.1",
+    "express": "^4.22.1",
+    "express-session": "^1.18.2",
+    "spotify-web-api-node": "^5.0.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  }
+}
