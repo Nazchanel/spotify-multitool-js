@@ -201,7 +201,6 @@ app.post('/shuffle', async (req, res) => {
     });
 
   } catch (err) {
-    // 🎯 Graceful Spotify device error
     res.render('shuffle', {
       message:
         'No active Spotify device found. Please open Spotify on one of your devices and try again.',
