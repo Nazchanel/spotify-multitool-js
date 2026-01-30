@@ -118,16 +118,21 @@ function shuffleArray(array) {
 ------------------------- */
 
 app.get('/', (req, res) => {
-  if (!req.session.tokenInfo) {
-    return res.redirect('/login');
-  }
-  return res.redirect('/choose');
+  res.render('index')
 });
 
+app.get('/tools', (req, res) => {
+  res.render('tools')
+});
 app.get('/login', (req, res) => {
-  const sp = createSpotifyClient();
-  const authUrl = sp.createAuthorizeURL(SCOPE.split(' '));
-  res.redirect(authUrl);
+  if (!req.session.tokenInfo) {
+    const sp = createSpotifyClient();
+    const authUrl = sp.createAuthorizeURL(SCOPE.split(' '));
+    res.redirect(authUrl);
+  }else{
+    res.redirect('/tools')
+  }
+
 });
 
 app.get('/callback', async (req, res) => {
@@ -139,7 +144,7 @@ app.get('/callback', async (req, res) => {
   try {
     const data = await sp.authorizationCodeGrant(code);
     req.session.tokenInfo = data.body;
-    res.redirect('/choose');
+    res.redirect('/tools');
   } catch (err) {
     res.send(`Error getting access token: ${err.message}`);
   }
