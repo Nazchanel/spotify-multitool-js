@@ -112,10 +112,121 @@ function shuffleArray(array) {
     [array[i], array[j]] = [array[j], array[i]];
   }
 }
+function pickSongs(array, time, attempts = 10) {
+  const time_in_ms = time * 60000;
+  let bestCombination = [];
+  let bestTime = 0;
+
+  for (let attempt = 0; attempt < attempts; attempt++) {
+    let shuffledArray = [...array];
+    shuffleArray(shuffledArray);
+
+    let currentCombination = [];
+    let currentTime = 0;
+
+    for (let track of shuffledArray) {
+      if (currentTime + track.duration_ms <= time_in_ms) {
+        currentCombination.push(track);
+        currentTime += track.duration_ms;
+      }
+    }
+
+    // Keep the best combination so far
+    if (currentTime > bestTime) {
+      bestTime = currentTime;
+      bestCombination = currentCombination;
+    }
+  }
+
+  // Log total duration
+  const minutes = Math.floor(bestTime / 60000);
+  const seconds = Math.floor((bestTime % 60000) / 1000);
+  console.log(`Total duration: ${minutes}m ${seconds}s`);
+
+  return bestCombination;
+}
+
+// Fisher–Yates shuffle
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
+
 
 /* -------------------------
    Routes
 ------------------------- */
+app.get('/timedqueue', async (req, res) => {
+  const sp = getSpotifyFromSession(req);
+  if (!sp) return res.redirect('/login');
+
+  try {
+    const playlists = await getUserPlaylists(sp);
+    res.render('timed_selection', { playlists });
+  } catch (err) {
+    res.send('Error fetching playlists');
+  }
+})
+app.post('/tq', async (req, res) => {
+  const sp = getSpotifyFromSession(req);
+  if (!sp) return res.redirect('/login');
+
+  const playlistId = req.body.playlist_id;
+  if (!playlistId) {
+    return res.render('timed_queue', {
+      message: 'No playlist selected.',
+      playlist_name: null,
+      playlist_image: null,
+      tracks: []
+    });
+  }
+  const queueDuration = req.body.duration_minutes;
+
+  if (!queueDuration) {
+    return res.render('timed_queue', {
+      message: 'No playlist selected.',
+      playlist_name: null,
+      playlist_image: null,
+      tracks: []
+    });
+  }
+  try {
+    var tracks = await getPlaylistTracks(sp, playlistId);
+    if (!tracks.length) {
+      return res.render('timed_queue', {
+        message: 'No tracks found in this playlist.',
+        playlist_name: null,
+        playlist_image: null,
+        tracks: []
+      });
+    }
+
+    tracks = pickSongs(tracks, queueDuration)
+    const uris = tracks.map(t => t.uri);
+
+    await sp.play({ uris });
+
+    const playlistData = await sp.getPlaylist(playlistId);
+
+    res.render('timed_queue', {
+      message: 'Shuffling and playback started!',
+      playlist_name: playlistData.body.name,
+      playlist_image: playlistData.body.images[0]?.url || null,
+      tracks
+    });
+
+  } catch (err) {
+    res.render('timed_selection', {
+      message:
+        'No active Spotify device found. Please open Spotify on one of your devices and try again.',
+      playlist_name: null,
+      playlist_image: null,
+      tracks: []
+    });
+  }
+});
 
 app.get('/', (req, res) => {
   res.render('index')
@@ -129,7 +240,7 @@ app.get('/login', (req, res) => {
     const sp = createSpotifyClient();
     const authUrl = sp.createAuthorizeURL(SCOPE.split(' '));
     res.redirect(authUrl);
-  }else{
+  } else {
     res.redirect('/tools')
   }
 

@@ -1,0 +1,28 @@
+<%- include('partials/base', { title: 'Timed Queue' ,body: ` <h2>Timed Queue</h2>
+
+  <form method="POST" action="/tq">
+    <div class="mb-3">
+      <label class="form-label">Your Playlists:</label>
+      <select class="form-select" name="playlist_id">
+        ${playlists.map(pl => `
+        <option value="${pl.id}">
+          ${pl.name} — ${pl.owner.display_name}
+        </option>
+        `).join('')}
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Duration (minutes):</label>
+      <select class="form-select" name="duration_minutes">
+        ${[10, 20, 30, 45, 60, 90, 120].map(min => `
+        <option value="${min}">${min} minutes</option>
+        `).join('')}
+      </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+      Shuffle Selected Playlist
+    </button>
+  </form>
+  ` }) %>

@@ -1,0 +1,31 @@
+<%- include('partials/base', { title: 'Timed Queue' , body: ` <div class="text-center">
+  <h2>Timed Queue</h2>
+
+  ${message ? `
+  <div class="alert alert-info mt-4">${message}</div>
+  ` : ''}
+
+  ${playlist_name && tracks.length ? `
+  <h3 class="mt-4">${playlist_name}</h3>
+
+  ${playlist_image ? `
+  <img src="${playlist_image}" class="img-fluid rounded mt-2" style="max-width:300px;">
+  ` : ''}
+
+  <ul class="list-group mt-4">
+    ${tracks.map(track => `
+    <li class="list-group-item">
+      <strong>${track.name}</strong>
+      by ${track.artists[0].name}
+    </li>
+    `).join('')}
+  </ul>
+  ` : ''}
+
+  <div class="mt-4">
+    <a href="/timedqueue" class="btn btn-secondary">Back</a>
+    <a href="/tools" class="btn btn-outline-primary">Tools</a>
+  </div>
+  </div>
+  `
+  }) %>
